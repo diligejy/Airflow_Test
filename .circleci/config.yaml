@@ -1,0 +1,21 @@
+test:
+    docker:
+      - image: apache/airflow:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install --upgrade pip
+            pip install -r test_requirements.txt
+      - run:
+          name: Run pytest
+          command: |
+            mkdir test-results
+            PYTHONPATH=tests coverage run -m pytest -ra -q --junitxml=test-results/junit.xml
+            coverage report --omit=tests/*
+            coverage html
+      - store_test_results: # <https://circleci.com/docs/collect-test-data/#pytest>
+          path: test-results
+      - store_artifacts: # <https://circleci.com/docs/code-coverage/>
+          path: htmlcov
